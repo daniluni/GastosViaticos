@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gastos Viáticos</title>
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<header class="header">
+    <a href="../index.html" style="color:inherit;text-decoration:none;opacity:.7;font-size:.85rem;white-space:nowrap;margin-right:var(--space-md)">← Volver</a>
+  <div class="header-brand">🚗 GastosViaticos</div>
+</header>
+
+<nav class="tab-bar">
+  <button class="tab-btn" data-tab="0">📊 Gerencia</button>
+  <button class="tab-btn" data-tab="1">💰 Gastos</button>
+  <button class="tab-btn" data-tab="2">⚙️ Admin</button>
+</nav>
+
+<!-- ===== VISTA GERENCIA ===== -->
+<div class="view active" id="gerencia-view">
+  <div class="dashboard-grid">
+    <div class="card card--total" id="dash-total"><div class="card-label">Total del Mes</div><div class="card-value">$0</div></div>
+    <div class="card card--pendientes" id="dash-pendientes"><div class="card-label">Pendientes</div><div class="card-value">0</div></div>
+    <div class="card card--activos" id="dash-activos"><div class="card-label">Trabajadores con Gastos</div><div class="card-value">0 de 0</div></div>
+    <div class="card card--promedio" id="dash-promedio"><div class="card-label">Gasto Promedio x Trabajador</div><div class="card-value">$0</div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-container">
+      <div class="chart-title">Gastos por Categoría (este mes)</div>
+      <canvas id="chart-dona"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">Tendencia Mensual</div>
+      <canvas id="chart-barras"></canvas>
+    </div>
+  </div>
+  <div class="top-section">
+    <div class="section-title">Top 5 Trabajadores (este mes)</div>
+    <div class="chart-container">
+      <canvas id="chart-top"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VISTA GASTOS ===== -->
+<div class="view" id="gastos-view">
+  <div class="gastos-header">
+    <button class="btn btn--primary" id="gasto-new-btn">+ Nuevo Gasto</button>
+    <div class="gastos-filters">
+      <select class="form-select" id="filtro-trabajador"><option value="">Todos</option></select>
+      <select class="form-select" id="filtro-categoria"><option value="">Todas</option></select>
+      <select class="form-select" id="filtro-estado">
+        <option value="">Todos los estados</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="aprobado">Aprobado</option>
+        <option value="rechazado">Rechazado</option>
+      </select>
+      <input type="date" class="form-input" id="filtro-desde" style="width:140px">
+      <input type="date" class="form-input" id="filtro-hasta" style="width:140px">
+    </div>
+  </div>
+  <div class="table-wrapper">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Trabajador</th>
+          <th>Categoría</th>
+          <th>Monto</th>
+          <th>Fecha</th>
+          <th>Destino</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="gastos-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== VISTA ADMIN ===== -->
+<div class="view" id="admin-view">
+  <div class="admin-panel">
+    <div class="chart-container">
+      <div class="chart-title">🕐 Pendientes por Aprobar/Rechazar</div>
+      <div id="admin-pendientes"></div>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">👥 Trabajadores</div>
+      <form class="trabajador-form" id="trabajador-form">
+        <input type="text" class="form-input" id="trab-nombre" placeholder="Nombre" required>
+        <input type="text" class="form-input" id="trab-documento" placeholder="Documento" required>
+        <input type="text" class="form-input" id="trab-departamento" placeholder="Departamento" required>
+        <button type="submit" class="btn btn--primary" id="trab-submit">Agregar</button>
+        <button type="button" class="btn btn--ghost" id="trab-cancel" style="display:none">Cancelar</button>
+      </form>
+      <div id="admin-trabajadores-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL GASTO ===== -->
+<div class="modal-overlay" id="gasto-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Nuevo Gasto</h2>
+      <button class="modal-close">&times;</button>
+    </div>
+    <form id="gasto-form">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="gasto-trabajador">Trabajador *</label>
+            <select class="form-select" id="gasto-trabajador" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="gasto-categoria">Categoría *</label>
+            <select class="form-select" id="gasto-categoria" required></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="gasto-monto">Monto *</label>
+            <input type="number" class="form-input" id="gasto-monto" min="1" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="gasto-fecha">Fecha *</label>
+            <input type="date" class="form-input" id="gasto-fecha" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="gasto-destino">Destino *</label>
+          <input type="text" class="form-input" id="gasto-destino" placeholder="Lugar de la salida a terreno" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="gasto-descripcion">Descripción</label>
+          <textarea class="form-textarea" id="gasto-descripcion" placeholder="Concepto del gasto"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-checkbox">
+            <input type="checkbox" id="gasto-boleta">
+            Cuenta con boleta/comprobante
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn--ghost">Cancelar</button>
+        <button type="submit" class="btn btn--primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/store.js"></script>
+<script src="js/models.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/gastos.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
